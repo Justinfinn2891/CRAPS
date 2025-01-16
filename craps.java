@@ -1,41 +1,49 @@
+
 import java.util.Random;
 import java.util.Scanner;
 
 // I wanted to challenge myself more and learn Java to complete this assignment. 
 
 /* TO DO LIST:
-2.) Edit boundaries for what Dr. Lowe Asks
-4.) Fully have it finished
-
+DONE
 */
 public class craps {
     private static final Random random = new Random();
     // Returns random value with dice formula 1 - 11
-    public static int betMenu(boolean startBet){
-        Scanner scanner = new Scanner(System.in); 
-        System.out.println("======================");
-        System.out.printf("%15s\n", "Bet Menu!");
-        System.out.println("======================");
-        if(startBet == true){
-            System.out.println("1.) Bet Pass Line");
-            System.out.println("2.) Bet Don't Pass Line");
-            System.out.println("3.) Roll the Dice");
-            System.out.println("4.) Quit");
-            int response = scanner.nextInt();
+    public static int betMenu(boolean startBet, Scanner scanner){
+         
+            System.out.println("======================");
+            System.out.printf("%15s\n", "Bet Menu!");
+            System.out.println("======================");
+            if(startBet == true){
+                System.out.println("1.) Bet Pass Line");
+                System.out.println("2.) Bet Don't Pass Line");
+                System.out.println("3.) Roll the Dice");
+                System.out.println("4.) Quit");
+        
+                // Secure choices (numbers only)
+                if(scanner.hasNextInt()){
+                    int response = (int) scanner.nextInt();
+                    return (int) response;
+                }
+                else{
+                    int response = betMenu(startBet, scanner);
+                    return response; 
+                }
 
-            return (int) response;
-          
+            
+            
 
-        } else{
-            System.out.println("1.) Bet Come");
-            System.out.println("2.) Bet Don't Come");
-            System.out.println("3.) Roll the Dice");
-            System.out.println("4.) Quit");
-            int response = scanner.nextInt();
+            } else{
+                System.out.println("1.) Bet Come");
+                System.out.println("2.) Bet Don't Come");
+                System.out.println("3.) Roll the Dice");
+                System.out.println("4.) Quit");
+                int response = scanner.nextInt();
 
-            return (int) response;
-        }
-       
+                return (int) response;
+            }
+        
     }
 
     public static int randomDice(){
@@ -117,34 +125,36 @@ public class craps {
     
     }
 
+    public static void comeScreen(int totalDontCome, int totalCome, int totalDontPass, int totalPassBet){
+        if(totalDontCome > 0)
+            System.out.println("Don't Come: " + totalDontCome);
+        else{System.out.println("Don't Come:");}
+
+        if(totalCome > 0)
+            System.out.println("Come: " + totalCome);
+        else{System.out.println("Come:");}
+
+        if(totalDontPass > 0) 
+            System.out.println("Don't Pass" + totalDontPass);
+        else{System.out.println("Don't Pass");}
+
+        if(totalPassBet > 0) 
+            System.out.println("Pass:" + totalPassBet); 
+        else{System.out.println("Pass:");} 
+    }
+
     public static void loadRound(int dye, boolean startBet, float playerBalance, int secondStage, int pointDye, int totalPassBet, int totalDontPass, int totalCome, int totalDontCome, int comeDye, int dontComeDye, boolean lateBet) 
     {
         
         Scanner scanner = new Scanner(System.in);
-        dice Dice = new dice();
         while(playerBalance > 0){
             // ADD CONDITION WHERE POINT STAYS UNTIL TOLD         
             printBoard(pointDye, totalCome, totalDontCome, comeDye, dontComeDye);
-
-            if(totalDontCome > 0)
-                System.out.println("Don't Come: " + totalDontCome);
-            else{System.out.println("Don't Come:");}
-            if(totalCome > 0)
-                System.out.println("Come: " + totalCome);
-            else{System.out.println("Come:");}
-
-            if(totalDontPass > 0) 
-                System.out.println("Don't Pass" + totalDontPass);
-            else{
-                System.out.println("Don't Pass");
-            }
-            if(totalPassBet > 0) 
-                System.out.println("Pass:" + totalPassBet); 
-            else{
-                System.out.println("Pass:");
-            } 
+            // SHOWS PLAYER'S INVESTMENTS
+            comeScreen(totalDontCome, totalCome, totalDontPass, totalPassBet);
             System.out.println("Total Chip Balance: $" + playerBalance + "\n");
-            int response = betMenu(startBet);
+            // RETURNS RESPONSE FROM PLAYER AND PRINTS BET MENU
+            int response = betMenu(startBet, scanner);
  
             while((response != 3 && response != 4) && (response == 1 || response == 2)){
 
@@ -153,7 +163,7 @@ public class craps {
 
                 if(response == 1){
                     System.out.println("You have " + playerBalance + ". How much would you like to spend?");
-                    int bet = scanner.nextInt();
+                    int bet = (int) scanner.nextInt();
                     //passChoice++;
                     if(secondStage == 0){
                         if(bet <= playerBalance){
@@ -179,7 +189,7 @@ public class craps {
                         }
                         else{System.out.println("You don't have enough funds!");}
                     } 
-                    response = betMenu(startBet); 
+                    response = betMenu(startBet, scanner); 
                 }
                 if(response == 2){
                     System.out.println("You have " + playerBalance + ". How much would you like to spend?");
@@ -211,20 +221,17 @@ public class craps {
                         }
                         else{System.out.println("You don't have enough funds!");}
                     } 
-                    response = betMenu(startBet); 
+                    response = betMenu(startBet, scanner); 
                 }
             }
 
             if(response == 3){
                 
                 dye = randomDice();
-                // Random warning? Fix later 
-                Dice.printDice(dye);
-                startBet = false; 
-                if(secondStage == 0){
-                    
-                   
+                dice.printDice(dye);
+                startBet = false;
 
+                if(secondStage == 0){
                     // IF DICE HITS 7 OR 11     
                     if(dye == 7 || dye == 11){
                         System.out.println("Pass wins, selected winners awarded!");
@@ -255,10 +262,11 @@ public class craps {
                             playerBalance += (totalPassBet*2);
                             totalPassBet = 0;
                             totalDontPass = 0;
-                            totalCome = 0;
-                            totalDontCome = 0;
-                            secondStage = 0;
-                            startBet = true;      
+                            pointDye = 0; 
+                            //totalCome = 0;
+                            //totalDontCome = 0;
+                            //secondStage = 0;
+                            //startBet = true;      
                         }
                         // IF DYE HITS 7
                         if(dye == 7){
@@ -266,18 +274,18 @@ public class craps {
                             playerBalance += (totalDontPass*2);
                             totalPassBet = 0;
                             totalDontPass = 0;
-                            totalCome = 0;
-                            totalDontCome = 0;
-                            secondStage = 0;
-                            startBet = true;        
+                           // totalCome = 0;
+                            //totalDontCome = 0;
+                            //secondStage = 0;
+                            //startBet = true;        
                         }
                         if(lateBet == true){
                             if(dye == 7 || dye == 11)
                             {
-                                System.out.println("Come wins, selected winners awarded!1");
+                                System.out.println("Come wins, selected winners awarded!");
                                 playerBalance += (totalCome*2);
-                                totalPassBet = 0;
-                                totalDontPass = 0;
+                                //totalPassBet = 0;
+                                //totalDontPass = 0;
                                 totalCome = 0;
                                 totalDontCome = 0;
                                 secondStage = 0;
@@ -286,8 +294,8 @@ public class craps {
                             {
                                 System.out.println("Dont Come Wins, selected winners awarded!");
                                 playerBalance += (totalDontCome*2);
-                                totalPassBet = 0;
-                                totalDontPass = 0;
+                                //totalPassBet = 0;
+                                //totalDontPass = 0;
                                 totalCome = 0;
                                 totalDontCome = 0;
                                 secondStage = 0;
@@ -306,26 +314,27 @@ public class craps {
     
                             }
                         }
-                        // HONESTLY DONT KNOW ANYMORE 
+                    
                   
                         if(comeDye > 0){
                             if(dye == comeDye){
                                 System.out.println("Come wins, selected winners awarded!!2");
                                 playerBalance += (totalCome*2);
                                 startBet = true;
-                                pointDye = 0;
-                                totalDontPass = 0; 
-                                totalPassBet = 0;
+                                //pointDye = 0;
+                                //totalDontPass = 0; 
+                                //totalPassBet = 0;
                                 totalCome = 0;
                                 totalDontCome = 0;
                                 comeDye = 0;
                                 dontComeDye = 0;
                             }
                             if(dye == 7){
+                                System.out.println("Dont Come Wins, selected winners awarded!");
                                 startBet = true;
-                                pointDye = 0;
-                                totalDontPass = 0; 
-                                totalPassBet = 0;
+                                //pointDye = 0;
+                                //totalDontPass = 0; 
+                                //totalPassBet = 0;
                                 totalCome = 0;
                                 totalDontCome = 0;
                                 comeDye = 0;
@@ -338,19 +347,20 @@ public class craps {
                                 System.out.println("Dont Come Wins, selected winners awarded!");
                                 playerBalance += (totalDontCome*2);
                                 startBet = true;
-                                pointDye = 0;
-                                totalDontPass = 0; 
-                                totalPassBet = 0;
+                                //pointDye = 0;
+                                //totalDontPass = 0; 
+                                //totalPassBet = 0;
                                 totalCome = 0;
                                 totalDontCome = 0;
                                 comeDye = 0;
                                 dontComeDye = 0;
                             }
                             if(dye == 7){
+                                System.out.println("Come Wins, selected winners awarded!");
                                 startBet = true;
                                 pointDye = 0;
-                                totalDontPass = 0; 
-                                totalPassBet = 0;
+                                //totalDontPass = 0; 
+                                //totalPassBet = 0;
                                 totalCome = 0;
                                 totalDontCome = 0;
                                 comeDye = 0;
@@ -371,8 +381,9 @@ public class craps {
         
 
         }
-        System.out.println("GAME OVER! COME AGAIN ANOTHER TIME!");
-        
+
+        System.out.println("It's time to go home pal, you don't got anymore money... Come back tomorrow");
+        scanner.close();
      
     }
     public static void startGame(){
@@ -419,3 +430,4 @@ public class craps {
 
 
 }
+
